@@ -3,7 +3,7 @@
 - Manage local Hosts files
 
 ##### Install
-* **npm install hosts-manage -g**
+* ``npm install hosts-manage -g``
 
 ##### Start
-* [hosts-manage start]
+* ``hosts-manage start``
