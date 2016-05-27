@@ -6,4 +6,4 @@
 * **npm install hosts-manage -g**
 
 ##### Start
-* **hosts-manage start**
+* [hosts-manage start]
