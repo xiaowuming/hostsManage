@@ -1,0 +1,5 @@
+node_modules
+tpl
+config.js
+*.log
+*.DS_Store

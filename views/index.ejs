@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel='stylesheet' href='/css/style.css'/>
+</head>
+<body>
+<div class="page-header">
+    <h1><span class="glyphicon glyphicon-check"></span> <%= title %></h1>
+</div>
+<div class="hosts">
+
+    <ul class="nav nav-tabs" role="tablist">
+        <%
+        var n = 0;
+                for(var i in data){
+            n++;
+        %>
+        <li
+                <% if (n == 1){ %>
+                class="active"
+                <% } %>
+                role="presentation">
+            <a href="#J_content<%= n %>" aria-controls="home" role="tab" data-toggle="tab"><%= i %></a>
+        </li>
+        <% } %>
+    </ul>
+
+    <div class="tab-content">
+        <%
+        var n = 0;
+                for(var i in data){
+            n++;
+            var items = data[i]; %>
+        <div role="tabpanel" data-lable="<%= i %>" class="J_pane tab-pane<% if (n == 1){ %> active<% } %>"
+             id="J_content<%= n %>">
+            <ul class="hosts_items">
+                <li class="item head">
+                    <div class="allSelect">
+                        <label><input type="checkbox" class="J_all_select"> 全选</label>
+                    </div>
+                    <div class="action">
+                        <button class="btn btn-default btn-xs" type="submit">添加Hosts</button>
+                        <button class="btn btn-default btn-xs" type="submit">修改组名</button>
+                    </div>
+                </li>
+                <%
+                for (var x in items) {
+                    var item = items[x];
+                %>
+                <% if(item.isInvalid){ %>
+                <li class="J_item item invalid">
+                    <% }else{ %>
+                <li class="J_item item">
+                    <% } %>
+                    <div class="select"><input name="item" type="checkbox" data-ip="<%= item.ip %>"
+                                               data-domain="<%= item.domain %>" data-isinvalid="<%= item.isInvalid %>">
+                    </div>
+                    <div class="invalidAction">#</div>
+                    <div class="ip"><%= item.ip %></div>
+                    <div class="domain"><%= item.domain %></div>
+                    <div class="delete J_delete_item">x</div>
+                </li>
+                <% } %>
+            </ul>
+        </div>
+        <% } %>
+    </div>
+    <% if(n > 0){ %>
+    <div class="button_action">
+        <button class="btn btn-success btn-xs" id="J_start_all_btn" type="submit">启用</button>
+        <button class="btn btn-danger btn-xs" id="J_pause_all_btn" type="submit">暂停</button>
+        <button class="btn btn-primary btn-xs" id="J_delete_all_btn" type="submit">删除</button>
+    </div>
+    <% } %>
+
+</div>
+<script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>
