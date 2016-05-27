@@ -1,9 +1,9 @@
 # HostsManage
 
-> Manage local Hosts files
+- Manage local Hosts files
 
-### Install
+##### Install
 * **npm install hosts-manage -g**
 
-### Start
+##### Start
 * **hosts-manage start**
