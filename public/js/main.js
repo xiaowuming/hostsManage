@@ -7,28 +7,31 @@ $(function () {
         },
         bindBtn: function () {
             var self = this;
+            //批量删除
             $('#J_delete_all_btn').on('click', function () {
                 self.dialog.confirm('确定批量删除?', function () {
                     self.deleteHosts();
                 });
 
             });
+            //批量暂停
             $('#J_pause_all_btn').on('click', function () {
                 self.pauseHosts();
             });
+            //批量启动
             $('#J_start_all_btn').on('click', function () {
                 self.startHosts();
             });
 
             //删除单个
-            $('.J_item').on('click', '.J_delete_item', function () {
+            $('#J_tab_content').on('click', '.J_delete_item', function () {
                 $('input[type=checkbox]').prop('checked', false);
                 $(this).parents('li').find('input[name=item]').attr('data-select', true);
                 self.deleteHosts();
             });
 
             //禁用单个
-            $('.J_item').on('click', '.invalidAction', function () {
+            $('#J_tab_content').on('click', '.invalidAction', function () {
                 var _this = $(this);
                 $('input[type=checkbox]').prop('checked', false);
                 _this.parents('li').find('input[name=item]').attr('data-select', true);
@@ -45,16 +48,73 @@ $(function () {
             });
 
             //删除组
-            $('.J_pane').on('click', '.J_delete_group', function () {
+            $('#J_tab_content').on('click', '.J_delete_group', function () {
                 self.dialog.confirm('确定删除该组?', function () {
                     self.deleteGroup();
                 });
             });
 
             //修改组名
-            $('.J_pane').on('click', '.J_edit_group', function () {
+            $('#J_tab_content').on('click', '.J_edit_group', function () {
                 var name = $(this).parents('.J_pane').attr('data-label');
                 self.editGroup($(this).parents('.J_pane'), name);
+            });
+
+            //添加Hosts
+            $('#J_tab_content').on('click', '.J_add_hosts', function () {
+                var _this = $(this);
+                self.editHostsForm('添加Hosts', '', '', function (ip, domain) {
+                    var tpl = '<li class="J_item item">\
+                        <div class="select"><input name="item" type="checkbox" data-ip="' + ip + '" data-domain="' + domain + '" data-isinvalid="false">\
+                        </div>\
+                        <div class="invalidAction">#</div>\
+                        <div class="ip">' + ip + '</div>\
+                        <div class="domain">' + domain + '</div>\
+                            <div class="delete J_delete_item">x</div>\
+                            </li>';
+                    _this.parents('.head').after(tpl);
+                    self.startHosts();
+                });
+            });
+
+            //修改Hosts
+            $('#J_tab_content').on('click', '.ip,.domain', function () {
+                var target = $(this).parents('.J_item').find('input[name=item]');
+                var ip = target.attr('data-ip'),
+                    domain = target.attr('data-domain');
+
+                self.editHostsForm('修改Hosts', ip, domain, function (ip, domain) {
+                    target.attr('data-ip', ip).attr('data-domain', domain);
+                    target.parents('.J_item').find('.ip').text(ip);
+                    target.parents('.J_item').find('.domain').text(domain);
+                    self.startHosts();
+                });
+            });
+
+        },
+        /**
+         * 编辑Hosts表单
+         */
+        editHostsForm: function (title, ip, domain, callback) {
+            var self = this;
+            var form = $('<form>\
+                <div class="form-group">\
+                <label for="J_newGroupName">IP:</label>\
+            <input type="text" required class="form-control" name="ip" value="' + ip + '" id="J_new_ip" placeholder="IP">\
+                </div>\
+                 <div class="form-group">\
+                <label for="J_newGroupName">Domamin:</label>\
+            <input type="text" required class="form-control" name="domain" value="' + domain + '" id="J_new_domain" placeholder="Domain">\
+                </div>\
+            <button type="submit" class="btn btn-info">确定</button>\
+            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>\
+                </form>');
+            this.dialog.init(title, form);
+
+            form.on('submit', function () {
+                callback && callback($('#J_new_ip').val().trim(), $('#J_new_domain').val().trim());
+                self.dialog.closeDialog();
+                return false;
             });
         },
         /**
