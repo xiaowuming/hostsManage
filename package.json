@@ -1,12 +1,34 @@
 {
   "name": "hostsManage",
-  "version": "0.0.0",
+  "version": "1.0",
   "private": true,
   "scripts": {
     "start": "node ./bin/www"
   },
+  "description": "Hosts manage",
+  "main": "app.js",
+  "bin": {
+    "hosts-manage": "cmd.js"
+  },
+  "author": "肖武明",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:xiaowuming/hostsManage.git"
+  },
+  "engines": {
+    "node": "*"
+  },
+  "keywords": [
+    "hosts",
+    "hosts manage",
+    "hosts admin"
+  ],
+  "os": [
+    "darwin"
+  ],
   "dependencies": {
     "body-parser": "^1.15.1",
+    "commander": "^2.9.0",
     "ejs": "~2.3.3",
     "express": "~4.13.1",
     "morgan": "^1.7.0"
