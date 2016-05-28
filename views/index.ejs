@@ -11,7 +11,10 @@
 </div>
 <div class="hosts">
 
-    <ul class="nav nav-tabs" role="tablist">
+    <ul class="nav nav-tabs" id="J_nav_tabs" role="tablist">
+        <li class="addGroup">
+            <button class="btn btn-info btn-xs" id="J_add_group_btn" type="submit">添加组</button>
+        </li>
         <%
         var n = 0;
                 for(var i in data){
@@ -27,13 +30,13 @@
         <% } %>
     </ul>
 
-    <div class="tab-content">
+    <div class="tab-content" id="J_tab_content">
         <%
         var n = 0;
                 for(var i in data){
             n++;
             var items = data[i]; %>
-        <div role="tabpanel" data-lable="<%= i %>" class="J_pane tab-pane<% if (n == 1){ %> active<% } %>"
+        <div role="tabpanel" data-label="<%= i %>" class="J_pane tab-pane<% if (n == 1){ %> active<% } %>"
              id="J_content<%= n %>">
             <ul class="hosts_items">
                 <li class="item head">
@@ -41,8 +44,9 @@
                         <label><input type="checkbox" class="J_all_select"> 全选</label>
                     </div>
                     <div class="action">
-                        <button class="btn btn-default btn-xs" type="submit">添加Hosts</button>
-                        <button class="btn btn-default btn-xs" type="submit">修改组名</button>
+                        <button class="btn btn-default btn-xs J_add_hosts" type="submit">添加Hosts</button>
+                        <button class="btn btn-default btn-xs J_edit_group" type="submit">修改组名</button>
+                        <button class="btn btn-default btn-xs J_delete_group" type="submit">删除组</button>
                     </div>
                 </li>
                 <%
@@ -75,6 +79,20 @@
     </div>
     <% } %>
 
+</div>
+<div id="J_dialog_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" class="modal fade">
+    <div id="J_dialog_type" rel="document" class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span
+                            aria-hidden="true">×</span></button>
+                <h4 id="mySmallModalLabel" class="modal-title"><span id="J_dialog_title"
+                                                                     class="fn12">kocm.com</span><a
+                            href="#mySmallModalLabel" class="anchorjs-link"><span class="anchorjs-icon"></span></a></h4>
+            </div>
+            <div id="J_dialog_content" class="modal-body"></div>
+        </div>
+    </div>
 </div>
 <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
