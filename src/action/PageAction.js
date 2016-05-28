@@ -14,6 +14,13 @@ module.exports = {
     UpdateHosts: function (req, res) {
         var content = req.body.content;
         var hostsGroup = JSON.parse(content);
-        res.send(hostsGroup);
+        HostsFileAction.writeHosts(hostsGroup, function (status) {
+            if (status) {
+                res.send({result: true});
+            } else {
+                res.send({result: false});
+            }
+        });
+
     }
 }

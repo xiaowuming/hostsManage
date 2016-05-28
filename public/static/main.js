@@ -11,7 +11,6 @@ $(function () {
                 self.dialog.confirm('确定批量删除?', function () {
                     self.deleteHosts();
                 });
-
             });
             //批量暂停
             $('#J_pause_all_btn').on('click', function () {
@@ -246,8 +245,6 @@ $(function () {
                     var item = group[n];
                     if (item.selected) {
                         item.isInvalid = false;
-                    } else {
-                        item.isInvalid = true;
                     }
                     delete item.selected;
                 }
@@ -267,7 +264,9 @@ $(function () {
                 var group = data[i];
                 for (var n in group) {
                     var item = group[n];
-                    item.isInvalid = item.selected;
+                    if (item.selected) {
+                        item.isInvalid = true;
+                    }
                     delete item.selected;
                 }
             }
@@ -306,13 +305,17 @@ $(function () {
          * 提交数据
          */
         postHosts: function (hosts, callback) {
+            var self = this;
             $.ajax({
                 url: '/update',
                 type: 'post',
                 data: {content: JSON.stringify(hosts)},
-                success: function (result) {
-                    console.log(result);
-                    callback && callback();
+                success: function (data) {
+                    if (data.result === false) {
+                        self.dialog.alert('没有权限操作,请用[sodu]启动HostsManage.');
+                    } else {
+                        callback && callback();
+                    }
                 }
             });
         },

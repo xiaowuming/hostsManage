@@ -1,5 +1,6 @@
 var fs = require('fs');
 module.exports = {
+    _hostsFilePath: '/etc/hosts',
     _hostsManageKey: '## hostsManage',
     _items: null,
     /**
@@ -8,7 +9,7 @@ module.exports = {
     getHostsFileContent: function (callback) {
         var self = this;
         self._items = {};
-        fs.readFile('/etc/hosts', 'utf-8', function (err, content) {
+        fs.readFile(self._hostsFilePath, 'utf-8', function (err, content) {
             if (err) {
                 callback(self._items);
             } else {
@@ -90,5 +91,44 @@ module.exports = {
             }
         }
         return result;
+    },
+    /**
+     * 写入
+     * @param hostsObj
+     */
+    writeHosts: function (hostsObj, callback) {
+        var self = this;
+        var hostsStr = self.toString(hostsObj);
+        fs.writeFile(self._hostsFilePath, hostsStr, function (err, data) {
+            if (err && err.errno == -13) {
+                callback && callback(false, '没有权限操作');
+            } else {
+                callback && callback(true);
+            }
+        });
+
+    },
+    /**
+     * 转换成字符串
+     * @param hostsObj
+     * @returns {string}
+     */
+    toString: function (hostsObj) {
+        var str = [this._hostsManageKey];
+        for (var i in hostsObj) {
+            var group = hostsObj[i];
+            str.push('\n## ' + i);
+            for (var n in group) {
+                var itemStr = [];
+                var item = group[n];
+                if (item.isInvalid === true) {
+                    itemStr.push('#');
+                }
+                itemStr.push(item.ip);
+                itemStr.push(item.domain);
+                str.push(itemStr.join(' '));
+            }
+        }
+        return str.join('\n');
     }
 };
