@@ -1,7 +1,6 @@
 $(function () {
     var _ = {
         init: function () {
-            //this.bindAllSelect();
             this.bindTab();
             this.bindBtn();
         },

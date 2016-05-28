@@ -1,0 +1,20 @@
+{
+  "name": "",
+  "version": "1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "spm-webpack -c"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "spm-webpack": "~0.8.0"
+  },
+  "spm": {
+    "output": [
+      "main.js",
+      "style.less"
+    ]
+  }
+}
