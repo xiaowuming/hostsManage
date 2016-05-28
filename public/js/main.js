@@ -20,7 +20,7 @@ $(function () {
             //删除单个
             $('.J_item').on('click', '.J_delete_item', function () {
                 $('input[type=checkbox]').prop('checked', false);
-                $(this).parents('li').find('input[name=item]').prop('checked', true);
+                $(this).parents('li').find('input[name=item]').attr('data-select', true);
                 self.deleteHosts();
             });
 
@@ -28,7 +28,7 @@ $(function () {
             $('.J_item').on('click', '.invalidAction', function () {
                 var _this = $(this);
                 $('input[type=checkbox]').prop('checked', false);
-                _this.parents('li').find('input[name=item]').prop('checked', true);
+                _this.parents('li').find('input[name=item]').attr('data-select', true);
                 if (_this.parents('.item').hasClass('invalid')) {
                     self.startHosts();
                 } else {
@@ -85,9 +85,12 @@ $(function () {
                     var _this = $(this);
                     var item = {};
                     item.selected = _this.prop('checked');
+                    if (_this.attr('data-select') == 'true') {
+                        item.selected = true;
+                    }
                     item.ip = _this.attr('data-ip');
                     item.domain = _this.attr('data-domain');
-                    item.isinvalid = _this.attr('data-isinvalid') == 'true' ? true : false;
+                    item.isInvalid = _this.attr('data-isinvalid') == 'true' ? true : false;
                     items.push(item);
                 });
             });
@@ -112,8 +115,8 @@ $(function () {
                 }
             }
             this.postHosts(data, function () {
-                $('input[name=item]:checked').parents('.item').removeClass('invalid');
-                $('input[type=checkbox]').prop('checked', false);
+                $('input[name=item]:checked,input[data-select=true]').parents('.item').removeClass('invalid');
+                $('input[type=checkbox],input[data-select=true]').prop('checked', false).removeAttr('data-select');
             });
         },
         /**
@@ -131,8 +134,8 @@ $(function () {
                 }
             }
             this.postHosts(data, function () {
-                $('input[name=item]:checked').parents('.item').addClass('invalid');
-                $('input[type=checkbox]').prop('checked', false);
+                $('input[name=item]:checked,input[data-select=true]').parents('.item').addClass('invalid');
+                $('input[type=checkbox],input[data-select=true]').prop('checked', false).removeAttr('data-select');
             });
         },
         /**
@@ -157,20 +160,20 @@ $(function () {
                 newData[i] = newGroup;
             }
             this.postHosts(newData, function () {
-                $('input[name=item]:checked').parents('.item').remove();
-                $('input[type=checkbox]').prop('checked', false);
+                $('input[name=item]:checked,input[data-select=true]').parents('.item').remove();
+                $('input[type=checkbox],input[data-select=true]').prop('checked', false).removeAttr('data-select');
             });
         },
         /**
          * 提交数据
          */
         postHosts: function (hosts, callback) {
-
             $.ajax({
                 url: '/update',
                 type: 'post',
                 data: {content: JSON.stringify(hosts)},
                 success: function (result) {
+                    console.log(result);
                     callback && callback();
                 }
             });
