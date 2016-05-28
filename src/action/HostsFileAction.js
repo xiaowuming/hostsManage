@@ -122,9 +122,10 @@ module.exports = {
                 var itemStr = [];
                 var item = group[n];
                 if (item.isInvalid === true) {
-                    itemStr.push('#');
+                    itemStr.push('#' + item.ip);
+                } else {
+                    itemStr.push(item.ip);
                 }
-                itemStr.push(item.ip);
                 itemStr.push(item.domain);
                 str.push(itemStr.join(' '));
             }
