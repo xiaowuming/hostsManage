@@ -312,7 +312,9 @@ $(function () {
                 data: {content: JSON.stringify(hosts)},
                 success: function (data) {
                     if (data.result === false) {
-                        self.dialog.alert('没有权限操作,请用[sodu]启动HostsManage.');
+                        setTimeout(function () {
+                            self.dialog.alert('没有权限操作,请用[sodu]启动HostsManage.');
+                        }, 500);
                     } else {
                         callback && callback();
                     }
