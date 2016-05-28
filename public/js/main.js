@@ -1,7 +1,7 @@
 $(function () {
     var _ = {
         init: function () {
-            this.bindAllSelect();
+            //this.bindAllSelect();
             this.bindTab();
             this.bindBtn();
         },
@@ -23,48 +23,45 @@ $(function () {
                 self.startHosts();
             });
 
-            //删除单个
-            $('#J_tab_content').on('click', '.J_delete_item', function () {
-                $('input[type=checkbox]').prop('checked', false);
-                $(this).parents('li').find('input[name=item]').attr('data-select', true);
-                self.deleteHosts();
-            });
-
-            //禁用单个
-            $('#J_tab_content').on('click', '.invalidAction', function () {
-                var _this = $(this);
-                $('input[type=checkbox]').prop('checked', false);
-                _this.parents('li').find('input[name=item]').attr('data-select', true);
-                if (_this.parents('.item').hasClass('invalid')) {
-                    self.startHosts();
-                } else {
-                    self.pauseHosts();
-                }
-            });
-
             //添加组
             $('#J_add_group_btn').on('click', function () {
                 self.addGroup();
             });
 
-            //删除组
-            $('#J_tab_content').on('click', '.J_delete_group', function () {
-                self.dialog.confirm('确定删除该组?', function () {
-                    self.deleteGroup();
-                });
-            });
-
-            //修改组名
-            $('#J_tab_content').on('click', '.J_edit_group', function () {
-                var name = $(this).parents('.J_pane').attr('data-label');
-                self.editGroup($(this).parents('.J_pane'), name);
-            });
-
-            //添加Hosts
-            $('#J_tab_content').on('click', '.J_add_hosts', function () {
-                var _this = $(this);
-                self.editHostsForm('添加Hosts', '', '', function (ip, domain) {
-                    var tpl = '<li class="J_item item">\
+            $('#J_tab_content')
+                .on('click', '.J_delete_item', function () {
+                    //删除单个
+                    $('input[type=checkbox]').prop('checked', false);
+                    $(this).parents('li').find('input[name=item]').attr('data-select', true);
+                    self.deleteHosts();
+                })
+                .on('click', '.invalidAction', function () {
+                    //禁用单个
+                    var _this = $(this);
+                    $('input[type=checkbox]').prop('checked', false);
+                    _this.parents('li').find('input[name=item]').attr('data-select', true);
+                    if (_this.parents('.item').hasClass('invalid')) {
+                        self.startHosts();
+                    } else {
+                        self.pauseHosts();
+                    }
+                })
+                .on('click', '.J_delete_group', function () {
+                    //删除组
+                    self.dialog.confirm('确定删除该组?', function () {
+                        self.deleteGroup();
+                    });
+                })
+                .on('click', '.J_edit_group', function () {
+                    //修改组名
+                    var name = $(this).parents('.J_pane').attr('data-label');
+                    self.editGroup($(this).parents('.J_pane'), name);
+                })
+                .on('click', '.J_add_hosts', function () {
+                    //添加Hosts
+                    var _this = $(this);
+                    self.editHostsForm('添加Hosts', '', '', function (ip, domain) {
+                        var tpl = '<li class="J_item item">\
                         <div class="select"><input name="item" type="checkbox" data-ip="' + ip + '" data-domain="' + domain + '" data-isinvalid="false">\
                         </div>\
                         <div class="invalidAction">#</div>\
@@ -72,24 +69,40 @@ $(function () {
                         <div class="domain">' + domain + '</div>\
                             <div class="delete J_delete_item">x</div>\
                             </li>';
-                    _this.parents('.head').after(tpl);
-                    self.startHosts();
-                });
-            });
+                        _this.parents('.head').after(tpl);
+                        self.startHosts();
+                    });
+                })
+                .on('click', '.ip,.domain', function () {
+                    //修改Hosts
+                    var target = $(this).parents('.J_item').find('input[name=item]');
+                    var ip = target.attr('data-ip'),
+                        domain = target.attr('data-domain');
 
-            //修改Hosts
-            $('#J_tab_content').on('click', '.ip,.domain', function () {
-                var target = $(this).parents('.J_item').find('input[name=item]');
-                var ip = target.attr('data-ip'),
-                    domain = target.attr('data-domain');
-
-                self.editHostsForm('修改Hosts', ip, domain, function (ip, domain) {
-                    target.attr('data-ip', ip).attr('data-domain', domain);
-                    target.parents('.J_item').find('.ip').text(ip);
-                    target.parents('.J_item').find('.domain').text(domain);
-                    self.startHosts();
+                    self.editHostsForm('修改Hosts', ip, domain, function (ip, domain) {
+                        target.attr('data-ip', ip).attr('data-domain', domain);
+                        target.parents('.J_item').find('.ip').text(ip);
+                        target.parents('.J_item').find('.domain').text(domain);
+                        self.startHosts();
+                    });
+                })
+                .on('change', '.J_all_select', function () {
+                    //全选
+                    $(this).parents('.J_pane').find('input[name=item]').prop('checked', $(this).prop('checked'));
+                })
+                .on('change', 'input[name=item]', function () {
+                    //单选
+                    var _this = $(this);
+                    if (_this.prop('checked')) {
+                        var maxSize = _this.parents('.J_pane').find('input[name=item]').size(),
+                            selectSize = _this.parents('.J_pane').find('input[name=item]:checked').size();
+                        if (maxSize == selectSize) {
+                            _this.parents('.J_pane').find('.J_all_select').prop('checked', true);
+                        }
+                    } else {
+                        _this.parents('.J_pane').find('.J_all_select').prop('checked', false);
+                    }
                 });
-            });
 
         },
         /**
@@ -198,34 +211,6 @@ $(function () {
             $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
                 $('input[type=checkbox]').prop('checked', false);
             })
-        },
-        /**
-         * 绑定全选
-         */
-        bindAllSelect: function () {
-            var itemPane = $('.J_pane');
-            //全选
-            itemPane.find('.J_all_select').on('change', function () {
-                var _this = $(this);
-                if (_this.prop('checked')) {
-                    _this.parents('.J_pane').find('input[name=item]').prop('checked', true);
-                } else {
-                    _this.parents('.J_pane').find('input[name=item]').prop('checked', false);
-                }
-            });
-
-            itemPane.find('input[name=item]').on('change', function () {
-                var _this = $(this);
-                if (_this.prop('checked')) {
-                    var maxSize = _this.parents('.J_pane').find('input[name=item]').size(),
-                        selectSize = _this.parents('.J_pane').find('input[name=item]:checked').size();
-                    if (maxSize == selectSize) {
-                        _this.parents('.J_pane').find('.J_all_select').prop('checked', true);
-                    }
-                } else {
-                    _this.parents('.J_pane').find('.J_all_select').prop('checked', false);
-                }
-            });
         },
         /**
          * 获取所有Hosts
