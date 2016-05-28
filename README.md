@@ -1,9 +1,10 @@
 # HostsManage
 
 - Manage local Hosts files
+- Sorry, Hosts-manage only provides Chinese service.
 
 ##### Install
 * ``npm install hosts-manage -g``
 
 ##### Start
-* ``hosts-manage start``
+* ``sudo hosts-manage start``
