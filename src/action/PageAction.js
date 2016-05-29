@@ -1,11 +1,19 @@
-var HostsFileAction = require('./HostsFileAction');
+var HostsFileAction = require('./HostsFileAction'),
+    IPAdress = require('./../util/IPAdress'),
+    DNSServer = require('./../util/DnsServer');
+
 module.exports = {
     /**
      * 管理页面
      */
     ManagePage: function (req, res) {
         HostsFileAction.getHostsFileContent(function (data) {
-            res.render('index', {title: 'HostsManage', data: data});
+            res.render('index', {
+                title: 'hosts-manage',
+                data: data,
+                localIP: IPAdress.getLocalIP(),
+                dnsStart: global.dnsIsStart
+            });
         });
     },
     /**
@@ -19,6 +27,18 @@ module.exports = {
                 res.send({result: true});
             } else {
                 res.send({result: false});
+            }
+        });
+    },
+    /**
+     * 启动DNS服务
+     */
+    StartDnsServer: function (req, res) {
+        DNSServer(function (result) {
+            if (result) {
+                res.send({code: 100});
+            } else {
+                res.send({code: 0});
             }
         });
 

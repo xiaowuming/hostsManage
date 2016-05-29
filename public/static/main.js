@@ -1,5 +1,6 @@
 $(function () {
     var _ = {
+        _noAuthText: '<p>无权限操作,请用如下命令启动服务:<p><code>sudo hosts-manage start</code>',
         init: function () {
             this.bindTab();
             this.bindBtn();
@@ -102,6 +103,30 @@ $(function () {
                     }
                 });
 
+
+            //DNS
+            $('#J_start_dns').on('click', function () {
+                self.startDnsServer($(this));
+            });
+
+        },
+        /**
+         * 启动DNS服务
+         */
+        startDnsServer: function (target) {
+            var self = this;
+            $.ajax({
+                url: '/start_dns',
+                data: {},
+                success: function (result) {
+                    if (result.code != 100) {
+                        self.dialog.alert(self._noAuthText);
+                    } else {
+                        target.remove();
+                        self.dialog.alert('<h3>启动成功</h3><p>手机上设置DNS为[' + _localIP + ']可以同步本机Hosts.</p>');
+                    }
+                }
+            });
         },
         /**
          * 编辑Hosts表单
@@ -313,7 +338,7 @@ $(function () {
                 success: function (data) {
                     if (data.result === false) {
                         setTimeout(function () {
-                            self.dialog.alert('没有权限操作,请用[sodu]启动HostsManage.');
+                            self.dialog.alert(self._noAuthText);
                         }, 500);
                     } else {
                         callback && callback();
