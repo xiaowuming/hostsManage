@@ -63,18 +63,7 @@ $(function () {
                 .on('click', '.J_add_hosts', function () {
                     //添加Hosts
                     var _this = $(this);
-                    self.editHostsForm('添加Hosts', '', '', function (ip, domain) {
-                        var tpl = '<li class="J_item item">\
-                        <div class="select"><input name="item" type="checkbox" data-ip="' + ip + '" data-domain="' + domain + '" data-isinvalid="false">\
-                        </div>\
-                        <div class="invalidAction">#</div>\
-                        <div class="ip">' + ip + '</div>\
-                        <div class="domain">' + domain + '</div>\
-                            <div class="delete J_delete_item">x</div>\
-                            </li>';
-                        _this.parents('.head').after(tpl);
-                        self.startHosts();
-                    });
+                    self.addMultipleHosts(_this);
                 })
                 .on('click', '.ip,.domain', function () {
                     //修改Hosts
@@ -113,6 +102,55 @@ $(function () {
                 self.startDnsServer($(this));
             });
 
+        },
+        /**
+         *
+         * 添加多个Hosts
+         */
+        addMultipleHosts: function (target) {
+            var self = this;
+            var tpl = $('<form action="#">\
+                    <textarea required class="form-control" name="hosts" id="J_addMultipleHosts" rows="10" placeholder="请输入Hosts,一行一个,不支持正则,不支持#注释符\n正确示例如:\n127.0.0.1 www.abc.com www.efg.com\n192.168.0.1 www.google.com"></textarea>\
+                    <div class="btn_area mt10 ar">\
+                    <button type="submit" class="btn btn-info">确定</button>\
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>\
+                    </div>\
+                </form>');
+            self.dialog.init('批量添加Hosts', tpl, 'lg', false);
+
+            tpl.on('submit', function () {
+                var str = $('#J_addMultipleHosts').val().trim();
+                installNewHosts(str);
+                self.dialog.closeDialog();
+                return false;
+            });
+
+            function installNewHosts(str) {
+                var obj = str.split('\n'),
+                    tpl = [];
+                for (var i in obj) {
+                    var item = obj[i].trim();
+                    if (item.indexOf('#') == -1) {
+                        var o = item.split(' ');
+                        for (var n = 1; n < o.length; n++) {
+                            if (o[n].trim()) {
+                                var ip = o[0],
+                                    domain = o[n];
+                                tpl.push('<li class="J_item item">\
+                        <div class="select"><input name="item" type="checkbox" data-ip="' + ip + '" data-domain="' + domain + '" data-isinvalid="false">\
+                        </div>\
+                        <div class="invalidAction">#</div>\
+                        <div class="ip">' + ip + '</div>\
+                        <div class="domain">' + domain + '</div>\
+                            <div class="delete J_delete_item">x</div>\
+                            </li>');
+                            }
+                        }
+                    }
+                }
+                target.parents('.head').after(tpl);
+                self.startHosts();
+            }
         },
         /**
          * 启动DNS服务
