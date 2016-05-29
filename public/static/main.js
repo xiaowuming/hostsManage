@@ -1,4 +1,8 @@
 $(function () {
+    /**
+     * 肖武明
+     * xiaowuming@gmail.com
+     */
     var _ = {
         _noAuthText: '<p>无权限操作,请用如下命令启动服务:<p><code>sudo hosts-manage start</code>',
         init: function () {
