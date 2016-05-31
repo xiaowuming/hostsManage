@@ -1,14 +1,15 @@
-var dialog = require('./dialog.js');
+var dialog = require('./dialog.js'),
+    ajax = require('./ajax');
 module.exports = {
     /**
      * 创建组
      */
-    create: function (groupName, noPermissionTips, callback) {
+    create: function (groupName, callback) {
         var self = this;
         self.editForm('添加组', '', function (groupName) {
-            self.postData(groupName, noPermissionTips, function (status) {
+            self.postData(groupName, function (status, data) {
                 if (status && callback) {
-                    callback();
+                    callback(data);
                 }
             });
         });
@@ -29,7 +30,7 @@ module.exports = {
             <button type="submit" class="btn btn-info">确定</button>\
             <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>\
                 </form>');
-        dialog.init(title, form);
+        dialog.init(title, form, 'sm');
 
         form.on('submit', function () {
             callback && callback($('#J_newGroupName').val().trim());
@@ -42,17 +43,19 @@ module.exports = {
      * @param groupName
      * @param callback
      */
-    postData: function (groupName, noPermissionTips, callback) {
-        $.ajax({
-            url: '/addGroupp',
+    postData: function (groupName, callback) {
+        ajax({
+            url: '/addGroup',
+            type: 'post',
             data: {
-                groupName: groupName
+                name: groupName
             },
             success: function (result) {
                 if (result.code == 100) {
-                    callback && callback(true);
+                    callback && callback(true, result.data);
+                } else if (result.code == -10) {
+                    dialog.alert('<p class="lh24"><i class="glyphicon glyphicon-info-sign fail"></i>组名重复.</p>');
                 } else {
-                    dialog.alert(noPermissionTips, null, '');
                     callback && callback(false);
                 }
             }

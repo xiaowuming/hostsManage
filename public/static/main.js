@@ -1,13 +1,12 @@
-var dialog = require('./dialog.js'),
-    group = require('./group'),
-    dns = require('./dns.js');
+var dialog = require('./lib/dialog.js'),
+    group = require('./lib/group'),
+    dns = require('./lib/dns.js');
 $(function () {
     /**
      * 肖武明
      * xiaowuming@gmail.com
      */
     var _ = {
-        _noPermissionTips: '<p class="lh24"><i class="glyphicon glyphicon-info-sign fail"></i>无权限操作,请用sudo命令启动服务:<code>sudo hosts-manage start</code></p>',
         init: function () {
             this.bindTab();
             this.bindBtn();
@@ -24,7 +23,7 @@ $(function () {
 
             //添加组
             $('#J_add_group_btn').on('click', function () {
-                group.create('', null);
+                group.create('', self.insertNewGroup.bind(self));
             });
 
         },
@@ -37,6 +36,15 @@ $(function () {
                     .prop('checked', false)
                     .removeAttr('data-select');
             })
+        },
+        /**
+         * 插入新组
+         * @param group
+         */
+        insertNewGroup: function (group) {
+            $('.J_hosts .active').removeClass('active');
+            console.log(group);
+
         }
     };
     _['init']();

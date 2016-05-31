@@ -39,12 +39,12 @@ module.exports = {
             var item = this._hostsData[i];
             if (item.name == groupName) {
                 flag = false;
-                continue;
+                break;
             }
         }
         if (flag === false) {
             //已经存在
-            this.tryCallback(callback, -1);
+            this.tryCallback(callback, -10);
         } else {
             //成功
             var id = this.getIndex();

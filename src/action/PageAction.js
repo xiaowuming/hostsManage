@@ -26,5 +26,17 @@ module.exports = {
                 Print.result(req, res, -2);
             }
         });
+    },
+    /**
+     * 添加组
+     * @param req
+     * @param res
+     * @constructor
+     */
+    AddGroup: function (req, res) {
+        var groupName = req.body.name;
+        Hosts.addGroup(groupName, function (status, group) {
+            Print.result(req, res, status, group);
+        });
     }
 }

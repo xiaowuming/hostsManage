@@ -44,7 +44,7 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(4);
+	module.exports = __webpack_require__(5);
 
 
 /***/ },
@@ -156,25 +156,24 @@
 
 	'use strict';
 
-	var dialog = __webpack_require__(1);
-	module.exports = {
-	    /**
-	     * 启动DNS服务
-	     */
-	    startDnsServer: function startDnsServer(target, noPermissionTips) {
-	        $.ajax({
-	            url: '/startDns',
-	            data: {},
-	            success: function success(result) {
-	                if (result.code != 100) {
-	                    dialog.alert(noPermissionTips, null, 'lg');
+	module.exports = function (option) {
+	    var dialog = __webpack_require__(1);
+	    $.ajax({
+	        url: option.url,
+	        type: option.type,
+	        data: option.data,
+	        success: function success(result) {
+	            setTimeout(function () {
+	                if (result.code == -2) {
+	                    dialog.alert('<p class="lh24"><i class="glyphicon glyphicon-info-sign fail"></i>无权限操作,请用sudo命令启动服务:<code>sudo hosts-manage start</code></p>', null, 'lg');
+	                } else if (result.code == -1) {
+	                    dialog.alert('<p class="lh24"><i class="glyphicon glyphicon-info-sign fail"></i>操作异常.</p>');
 	                } else {
-	                    target.remove();
-	                    dialog.alert('<h4 class="lh24"><i class="glyphicon glyphicon-ok succ"></i>启动成功</h4><p class="lh24">手机上设置DNS为[' + _localIP + ']可以同步本机Hosts.</p>', null, 'lg');
+	                    option.success && option.success(result);
 	                }
-	            }
-	        });
-	    }
+	            }, 500);
+	        }
+	    });
 	};
 
 /***/ },
@@ -183,17 +182,42 @@
 
 	'use strict';
 
-	var dialog = __webpack_require__(1);
+	var dialog = __webpack_require__(1),
+	    ajax = __webpack_require__(2);
+	module.exports = {
+	    /**
+	     * 启动DNS服务
+	     */
+	    startDnsServer: function startDnsServer(target) {
+	        ajax({
+	            url: '/startDns',
+	            data: {},
+	            success: function success() {
+	                target.remove();
+	                dialog.alert('<h4 class="lh24"><i class="glyphicon glyphicon-ok succ"></i>启动成功</h4><p class="lh24">手机上设置DNS为[' + _localIP + ']可以同步本机Hosts.</p>', null, 'lg');
+	            }
+	        });
+	    }
+	};
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var dialog = __webpack_require__(1),
+	    ajax = __webpack_require__(2);
 	module.exports = {
 	    /**
 	     * 创建组
 	     */
-	    create: function create(groupName, noPermissionTips, callback) {
+	    create: function create(groupName, callback) {
 	        var self = this;
 	        self.editForm('添加组', '', function (groupName) {
-	            self.postData(groupName, noPermissionTips, function (status) {
+	            self.postData(groupName, function (status, data) {
 	                if (status && callback) {
-	                    callback();
+	                    callback(data);
 	                }
 	            });
 	        });
@@ -207,7 +231,7 @@
 	    editForm: function editForm(title, groupName, callback) {
 	        var self = this;
 	        var form = $('<form>                <div class="form-group">                <label for="J_newGroupName">组名</label>            <input type="text" required class="form-control" name="groupName" value="' + groupName + '" id="J_newGroupName" placeholder="组名">                </div>            <button type="submit" class="btn btn-info">确定</button>            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>                </form>');
-	        dialog.init(title, form);
+	        dialog.init(title, form, 'sm');
 
 	        form.on('submit', function () {
 	            callback && callback($('#J_newGroupName').val().trim());
@@ -220,17 +244,19 @@
 	     * @param groupName
 	     * @param callback
 	     */
-	    postData: function postData(groupName, noPermissionTips, callback) {
-	        $.ajax({
-	            url: '/addGroupp',
+	    postData: function postData(groupName, callback) {
+	        ajax({
+	            url: '/addGroup',
+	            type: 'post',
 	            data: {
-	                groupName: groupName
+	                name: groupName
 	            },
 	            success: function success(result) {
 	                if (result.code == 100) {
-	                    callback && callback(true);
+	                    callback && callback(true, result.data);
+	                } else if (result.code == -10) {
+	                    dialog.alert('<p class="lh24"><i class="glyphicon glyphicon-info-sign fail"></i>组名重复.</p>');
 	                } else {
-	                    dialog.alert(noPermissionTips, null, '');
 	                    callback && callback(false);
 	                }
 	            }
@@ -239,21 +265,20 @@
 	};
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var dialog = __webpack_require__(1),
-	    group = __webpack_require__(3),
-	    dns = __webpack_require__(2);
+	    group = __webpack_require__(4),
+	    dns = __webpack_require__(3);
 	$(function () {
 	    /**
 	     * 肖武明
 	     * xiaowuming@gmail.com
 	     */
 	    var _ = {
-	        _noPermissionTips: '<p class="lh24"><i class="glyphicon glyphicon-info-sign fail"></i>无权限操作,请用sudo命令启动服务:<code>sudo hosts-manage start</code></p>',
 	        init: function init() {
 	            this.bindTab();
 	            this.bindBtn();
@@ -270,7 +295,7 @@
 
 	            //添加组
 	            $('#J_add_group_btn').on('click', function () {
-	                group.create('', null);
+	                group.create('', self.insertNewGroup.bind(self));
 	            });
 	        },
 	        /**
@@ -280,6 +305,14 @@
 	            $('a[data-toggle="tab"]').on('shown.bs.tab', function () {
 	                $('input[type=checkbox]').prop('checked', false).removeAttr('data-select');
 	            });
+	        },
+	        /**
+	         * 插入新组
+	         * @param group
+	         */
+	        insertNewGroup: function insertNewGroup(group) {
+	            $('.J_hosts .active').removeClass('active');
+	            console.log(group);
 	        }
 	    };
 	    _['init']();
