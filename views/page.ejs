@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel='stylesheet' href='/1.0.4/style.css'/>
+</head>
+<body>
+<div class="page-header">
+    <h1><a href="/"><span class="glyphicon glyphicon-check"></span> <%= title %></a></h1>
+</div>
+<div class="localIP">本机IP:<%= localIP %>
+    <% if (dnsStart === false){ %>
+    <button class="btn btn-default btn-xs" id="J_start_dns" type="button">启用DNS服务</button>
+    <% } %>
+</div>
+<div class="hosts">
+    <ul class="nav nav-tabs" id="J_nav_tabs" role="tablist">
+        <li class="addGroup">
+            <button class="btn btn-info btn-xs" id="J_add_group_btn" type="button">添加组</button>
+        </li>
+        <%
+        var n = 0;
+                for(var i in data){
+            var group = data[i];
+            n++;
+        %>
+        <li
+                <% if (n == 1){ %>
+                class="active"
+                <% } %>
+                role="presentation">
+            <a href="#J_content<%= group.id %>" aria-controls="home" role="tab" data-toggle="tab"><%= group.name %></a>
+        </li>
+        <% } %>
+    </ul>
+    <div class="tab-content" id="J_tab_content">
+        <%
+        var n = 0;
+                for(var i in data){
+            n++;
+            var group = data[i]; %>
+        <div role="tabpanel" data-label="<%= group.name %>" class="J_pane tab-pane<% if (n == 1){ %> active<% } %>"
+             id="J_content<%= group.id %>">
+            <ul class="hosts_items">
+                <li class="item head">
+                    <div class="allSelect">
+                        <label><input type="checkbox" class="J_all_select"> 全选</label>
+                    </div>
+                    <div class="action">
+                        <button class="btn btn-default btn-xs J_add_hosts" type="button">添加Hosts</button>
+                        <button class="btn btn-default btn-xs J_edit_group" type="button">修改组名</button>
+                        <button class="btn btn-default btn-xs J_delete_group" type="button">删除组</button>
+                    </div>
+                </li>
+                <%
+                for (var x in group['hosts']) {
+                    var item = group['hosts'][x];
+                %>
+                <% if(item.isInvalid){ %>
+                <li class="J_item item invalid">
+                    <% }else{ %>
+                <li class="J_item item">
+                    <% } %>
+                    <div class="select"><input name="item" type="checkbox" data-id="<%= item.id %>"
+                                               data-ip="<%= item.ip %>"
+                                               data-domain="<%= item.domain %>" data-isinvalid="<%= item.isInvalid %>">
+                    </div>
+                    <div class="invalidAction">#</div>
+                    <div class="ip"><%= item.ip %></div>
+                    <div class="domain"><%= item.domain %></div>
+                    <div class="delete J_delete_item">x</div>
+                </li>
+                <% } %>
+            </ul>
+        </div>
+        <% } %>
+    </div>
+    <% if(n > 0){ %>
+    <div class="button_action">
+        <button class="btn btn-success btn-xs" id="J_start_all_btn" type="button">启用</button>
+        <button class="btn btn-danger btn-xs" id="J_pause_all_btn" type="button">暂停</button>
+        <button class="btn btn-primary btn-xs" id="J_delete_all_btn" type="button">删除</button>
+        <button class="btn btn-default btn-xs" id="J_start_move_btn" type="button">移动到...</button>
+    </div>
+    <% } %>
+</div>
+<script>var _localIP = '<%= localIP %>';</script>
+<script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="/1.0.4/main.js"></script>
+</body>
+</html>

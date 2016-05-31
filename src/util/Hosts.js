@@ -22,6 +22,13 @@ module.exports = {
         this.tryCallback(callback, this._hostsData);
     },
     /**
+     * 同步获取hosts数据
+     * @returns {module.exports._hostsData|{}}
+     */
+    getHostsDataSync: function () {
+        return this._hostsData;
+    },
+    /**
      * 添加组
      * @param groupName
      * @param callback

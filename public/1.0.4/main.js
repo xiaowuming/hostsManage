@@ -44,7 +44,7 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(3);
+	module.exports = __webpack_require__(4);
 
 
 /***/ },
@@ -183,54 +183,6 @@
 
 	'use strict';
 
-	var dialog = __webpack_require__(1),
-	    group = __webpack_require__(5),
-	    dns = __webpack_require__(2);
-	$(function () {
-	    /**
-	     * 肖武明
-	     * xiaowuming@gmail.com
-	     */
-	    var _ = {
-	        _noPermissionTips: '<p class="lh24"><i class="glyphicon glyphicon-info-sign fail"></i>无权限操作,请用sudo命令启动服务:<code>sudo hosts-manage start</code></p>',
-	        init: function init() {
-	            this.bindTab();
-	            this.bindBtn();
-	        },
-	        /**
-	         * 绑定按钮
-	         */
-	        bindBtn: function bindBtn() {
-	            var self = this;
-	            //启动DNS
-	            $('#J_start_dns').on('click', function () {
-	                dns.startDnsServer($(this), self._noPermissionTips);
-	            });
-
-	            //添加组
-	            $('#J_add_group_btn').on('click', function () {
-	                group.create('', null);
-	            });
-	        },
-	        /**
-	         * 绑定Tab
-	         */
-	        bindTab: function bindTab() {
-	            $('a[data-toggle="tab"]').on('shown.bs.tab', function () {
-	                $('input[type=checkbox]').prop('checked', false).removeAttr('data-select');
-	            });
-	        }
-	    };
-	    _['init']();
-	});
-
-/***/ },
-/* 4 */,
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
 	var dialog = __webpack_require__(1);
 	module.exports = {
 	    /**
@@ -285,6 +237,53 @@
 	        });
 	    }
 	};
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var dialog = __webpack_require__(1),
+	    group = __webpack_require__(3),
+	    dns = __webpack_require__(2);
+	$(function () {
+	    /**
+	     * 肖武明
+	     * xiaowuming@gmail.com
+	     */
+	    var _ = {
+	        _noPermissionTips: '<p class="lh24"><i class="glyphicon glyphicon-info-sign fail"></i>无权限操作,请用sudo命令启动服务:<code>sudo hosts-manage start</code></p>',
+	        init: function init() {
+	            this.bindTab();
+	            this.bindBtn();
+	        },
+	        /**
+	         * 绑定按钮
+	         */
+	        bindBtn: function bindBtn() {
+	            var self = this;
+	            //启动DNS
+	            $('#J_start_dns').on('click', function () {
+	                dns.startDnsServer($(this), self._noPermissionTips);
+	            });
+
+	            //添加组
+	            $('#J_add_group_btn').on('click', function () {
+	                group.create('', null);
+	            });
+	        },
+	        /**
+	         * 绑定Tab
+	         */
+	        bindTab: function bindTab() {
+	            $('a[data-toggle="tab"]').on('shown.bs.tab', function () {
+	                $('input[type=checkbox]').prop('checked', false).removeAttr('data-select');
+	            });
+	        }
+	    };
+	    _['init']();
+	});
 
 /***/ }
 /******/ ]);

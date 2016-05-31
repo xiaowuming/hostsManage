@@ -6,6 +6,7 @@ var routes = require('./routes/index');
 
 var app = express();
 
+//DNS启动状态
 global.dnsIsStart = false;
 
 // view engine setup
