@@ -1,8 +1,9 @@
 var fs = require('fs');
 module.exports = {
-    _hostsFilePath: '/etc/hosts',
-    _hostsManageKey: '### hostsManage',
-    _hostsData: {},
+    /**
+     * 初始化Hosts数据
+     * @param callback
+     */
     init: function (callback) {
         var self = this;
         self._hostsData = {};
@@ -354,5 +355,11 @@ module.exports = {
             }
         }
         return result;
-    }
+    },
+    // Hosts文件路径
+    _hostsFilePath: '/etc/hosts',
+    // Hosts 本软件管理的标示
+    _hostsManageKey: '### hostsManage',
+    // Hosts数据
+    _hostsData: {}
 };
