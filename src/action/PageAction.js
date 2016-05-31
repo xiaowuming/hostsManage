@@ -1,19 +1,26 @@
 var HostsFileAction = require('./HostsFileAction'),
     IPAdress = require('./../util/IPAdress'),
-    DNSServer = require('./../util/DnsServer');
+    DNSServer = require('./../util/DnsServer'),
+    Print = require('./../util/print');
 
 module.exports = {
+    /**
+     * 初始化
+     */
+    init: function () {
+        HostsFileAction.getHostsFileContent(function (data) {
+            global._hostData = data;
+        });
+    },
     /**
      * 管理页面
      */
     ManagePage: function (req, res) {
-        HostsFileAction.getHostsFileContent(function (data) {
-            res.render('index', {
-                title: 'hosts-manage',
-                data: data,
-                localIP: IPAdress.getLocalIP(),
-                dnsStart: global.dnsIsStart
-            });
+        res.render('index', {
+            title: 'hosts-manage',
+            data: global._hostData,
+            localIP: IPAdress.getLocalIP(),
+            dnsStart: global.dnsIsStart
         });
     },
     /**
@@ -24,9 +31,9 @@ module.exports = {
         var hostsGroup = JSON.parse(content);
         HostsFileAction.writeHosts(hostsGroup, function (status) {
             if (status) {
-                res.send({result: true});
+                Print(req, res, 100);
             } else {
-                res.send({result: false});
+                Print(req, res, -1);
             }
         });
     },
@@ -36,11 +43,27 @@ module.exports = {
     StartDnsServer: function (req, res) {
         DNSServer(function (result) {
             if (result) {
-                res.send({code: 100});
+                Print(req, res, 100);
             } else {
-                res.send({code: 0});
+                Print(req, res, -1);
             }
         });
 
+    },
+    /**
+     * 添加组
+     * @param req
+     * @param res
+     * @constructor
+     */
+    AddGroup: function (req, res) {
+        var groupName = req.body.groupName;
+        if (global._hostData[groupName]) {
+            //已经存在
+            Print(req, res, -2);
+        } else {
+
+            Print(req, res, 100);
+        }
     }
 }

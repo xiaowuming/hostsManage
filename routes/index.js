@@ -3,12 +3,21 @@ var router = express.Router();
 
 var PageAction = require('./../src/action/PageAction');
 
+
+//初始化
+PageAction.init();
+
 // 管理页面
 router.get('/', PageAction.ManagePage.bind(PageAction));
+
 // 更新Hosts
-router.post('/update', PageAction.UpdateHosts.bind(PageAction));
+router.post('/updateHosts', PageAction.UpdateHosts.bind(PageAction));
+
+// 添加组
+router.post('/addGroup', PageAction.AddGroup.bind(PageAction));
+
 //启动DNS
-router.get('/start_dns', PageAction.StartDnsServer.bind(PageAction));
+router.get('/startDns', PageAction.StartDnsServer.bind(PageAction));
 
 //favicon.ico
 router.get('favicon.ico', function (req, res) {
