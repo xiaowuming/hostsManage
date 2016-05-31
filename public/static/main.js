@@ -148,8 +148,13 @@ $(function () {
                         }
                     }
                 }
-                target.parents('.head').after(tpl);
-                self.startHosts();
+                var tmp = $(tpl.join(''));
+                target.parents('.head').after(tmp);
+                self.startHosts(function (status) {
+                    if (!status) {
+                        tmp.remove();
+                    }
+                });
             }
         },
         /**
@@ -303,7 +308,7 @@ $(function () {
         /**
          * 启动Hosts
          */
-        startHosts: function () {
+        startHosts: function (callback) {
             var self = this;
             var data = self.getAllHosts();
             for (var i in data) {
@@ -316,9 +321,10 @@ $(function () {
                     delete item.selected;
                 }
             }
-            this.postHosts(data, function () {
+            this.postHosts(data, function (status) {
                 $('input[name=item]:checked,input[data-select=true]').parents('.item').removeClass('invalid');
                 $('input[type=checkbox],input[data-select=true]').prop('checked', false).removeAttr('data-select');
+                callback && callback(status);
             });
         },
         /**
@@ -381,9 +387,10 @@ $(function () {
                     if (data.result === false) {
                         setTimeout(function () {
                             self.dialog.alert(self._noAuthText);
+                            callback && callback(false);
                         }, 500);
                     } else {
-                        callback && callback();
+                        callback && callback(true);
                     }
                 }
             });
