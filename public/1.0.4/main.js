@@ -215,7 +215,7 @@
 	    create: function create(groupName, callback) {
 	        var self = this;
 	        self.editForm('添加组', '', function (groupName) {
-	            self.postData(groupName, function (status, data) {
+	            self.postAddData(groupName, function (status, data) {
 	                if (status && callback) {
 	                    callback(data);
 	                }
@@ -229,7 +229,6 @@
 	     * @param callback
 	     */
 	    editForm: function editForm(title, groupName, callback) {
-	        var self = this;
 	        var form = $('<form>                <div class="form-group">                <label for="J_newGroupName">组名</label>            <input type="text" required class="form-control" name="groupName" value="' + groupName + '" id="J_newGroupName" placeholder="组名">                </div>            <button type="submit" class="btn btn-info">确定</button>            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>                </form>');
 	        dialog.init(title, form, 'sm');
 
@@ -240,11 +239,11 @@
 	        });
 	    },
 	    /**
-	     * 发送数据
+	     * 发送新增数据
 	     * @param groupName
 	     * @param callback
 	     */
-	    postData: function postData(groupName, callback) {
+	    postAddData: function postAddData(groupName, callback) {
 	        ajax({
 	            url: '/addGroup',
 	            type: 'post',
@@ -254,10 +253,45 @@
 	            success: function success(result) {
 	                if (result.code == 100) {
 	                    callback && callback(true, result.data);
-	                } else if (result.code == -10) {
-	                    dialog.alert('<p class="lh24"><i class="glyphicon glyphicon-info-sign fail"></i>组名重复.</p>');
-	                } else {
-	                    callback && callback(false);
+	                }
+	            }
+	        });
+	    },
+	    /**
+	     * 提交编辑数据
+	     * @param id
+	     * @param name
+	     * @param callback
+	     */
+	    postEditData: function postEditData(id, name, callback) {
+	        ajax({
+	            url: '/editGroup',
+	            data: {
+	                id: id,
+	                name: name
+	            },
+	            type: 'post',
+	            success: function success(result) {
+	                if (result.code == 100) {
+	                    callback && callback(true);
+	                }
+	            }
+	        });
+	    },
+	    /**
+	     * 删除组
+	     * @param id
+	     * @param callback
+	     */
+	    removeGroup: function removeGroup(id, callback) {
+	        ajax({
+	            url: '/removeGroup',
+	            data: {
+	                id: id
+	            },
+	            success: function success(result) {
+	                if (result.code == 100) {
+	                    callback && callback(true);
 	                }
 	            }
 	        });
@@ -295,7 +329,21 @@
 
 	            //添加组
 	            $('#J_add_group_btn').on('click', function () {
-	                group.create('', self.insertNewGroup.bind(self));
+	                if ($('.J_pane').size() <= 8) {
+	                    group.create('', self.insertNewGroup.bind(self));
+	                } else {
+	                    dialog.alert('组的数量不要多于8个哦~~~');
+	                }
+	            });
+
+	            $('#J_tab_content')
+	            //修改组名
+	            .on('click', '.J_edit_group', function () {
+	                self.editGroup($(this).parents('.J_pane'));
+	            })
+	            //删除组
+	            .on('click', '.J_delete_group', function () {
+	                self.removeGroup($(this).parents('.J_pane').attr('data-id'));
 	            });
 	        },
 	        /**
@@ -307,12 +355,45 @@
 	            });
 	        },
 	        /**
+	         * 删除组
+	         * @param id
+	         */
+	        removeGroup: function removeGroup(id) {
+	            dialog.confirm('确定删除?', function () {
+	                group.removeGroup(id, function () {
+	                    $('#J_tab_' + id).remove();
+	                    $('#J_content' + id).remove();
+	                    $('#J_nav_tabs li').eq(1).addClass('active');
+	                    $('#J_tab_content .J_pane').eq(0).addClass('active');
+	                });
+	            });
+	        },
+	        /**
+	         * 修改组
+	         * @param target
+	         */
+	        editGroup: function editGroup(target) {
+	            var name = target.attr('data-label'),
+	                id = target.attr('data-id');
+	            group.editForm('修改组', name, function (newName) {
+	                group.postEditData(id, newName, function (status) {
+	                    target.attr('data-label', newName).attr('data-id', id);
+	                    $('#J_tab_' + id).text(newName);
+	                });
+	            });
+	        },
+	        /**
 	         * 插入新组
 	         * @param group
 	         */
 	        insertNewGroup: function insertNewGroup(group) {
 	            $('.J_hosts .active').removeClass('active');
-	            console.log(group);
+
+	            var tpl = '<li role="presentation" class="active"><a href="#J_content' + group.id + '" aria-controls="home" role="tab" data-toggle="tab" id="J_tab_' + group.id + '">' + group.name + '</a></li>';
+	            $('#J_nav_tabs').append(tpl);
+
+	            var content_tpl = '<div role="tabpanel" data-label="' + group.name + '" data-id="' + group.id + '" class="J_pane tab-pane active" id="J_content' + group.id + '">                    <ul class="hosts_items"><li class="item head">                    <div class="allSelect">                    <label><input type="checkbox" class="J_all_select"> 全选</label>                    </div>                    <div class="action">                    <button class="btn btn-default btn-xs J_add_hosts" type="submit">添加Hosts</button>                    <button class="btn btn-default btn-xs J_edit_group" type="submit">修改组名</button>                    <button class="btn btn-default btn-xs J_delete_group" type="submit">删除组</button>                    </div>                    </li></ul></div>';
+	            $('#J_tab_content').append(content_tpl);
 	        }
 	    };
 	    _['init']();

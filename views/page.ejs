@@ -30,7 +30,8 @@
                 class="active"
                 <% } %>
                 role="presentation">
-            <a href="#J_content<%= group.id %>" aria-controls="home" role="tab" data-toggle="tab"><%= group.name %></a>
+            <a href="#J_content<%= group.id %>" aria-controls="home" role="tab" data-toggle="tab"
+               id="J_tab_<%= group.id %>"><%= group.name %></a>
         </li>
         <% } %>
     </ul>
@@ -40,7 +41,8 @@
                 for(var i in data){
             n++;
             var group = data[i]; %>
-        <div role="tabpanel" data-label="<%= group.name %>" class="J_pane tab-pane<% if (n == 1){ %> active<% } %>"
+        <div role="tabpanel" data-label="<%= group.name %>" data-id="<%= group.id %>"
+             class="J_pane tab-pane<% if (n == 1){ %> active<% } %>"
              id="J_content<%= group.id %>">
             <ul class="hosts_items">
                 <li class="item head">

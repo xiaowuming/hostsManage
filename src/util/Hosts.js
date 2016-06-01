@@ -1,4 +1,5 @@
 var fs = require('fs');
+var objectClone = require('./objectClone');
 module.exports = {
     /**
      * 初始化Hosts数据
@@ -7,6 +8,7 @@ module.exports = {
     init: function (callback) {
         var self = this;
         self._hostsData = {};
+        self._hostsDataFinal = {};
         self.getFileContent(function (content) {
             if (content) {
                 self.parseToHostsData(content);
@@ -19,14 +21,14 @@ module.exports = {
      * 获取hosts数据
      */
     getHostsData: function (callback) {
-        this.tryCallback(callback, this._hostsData);
+        this.tryCallback(callback, this._hostsDataFinal);
     },
     /**
      * 同步获取hosts数据
      * @returns {module.exports._hostsData|{}}
      */
     getHostsDataSync: function () {
-        return this._hostsData;
+        return this._hostsDataFinal;
     },
     /**
      * 添加组
@@ -34,31 +36,18 @@ module.exports = {
      * @param callback
      */
     addGroup: function (groupName, callback) {
-        var flag = true;
-        for (var i in this._hostsData) {
-            var item = this._hostsData[i];
-            if (item.name == groupName) {
-                flag = false;
-                break;
-            }
-        }
-        if (flag === false) {
-            //已经存在
-            this.tryCallback(callback, -10);
-        } else {
-            //成功
-            var id = this.getIndex();
-            this._hostsData[id] = {
-                hosts: {},
-                id: id,
-                name: groupName
-            };
-            //更新数据
-            this._updateHostsData(callback, {
-                name: groupName,
-                id: id
-            });
-        }
+        //成功
+        var id = this.getIndex();
+        this._hostsData[id] = {
+            hosts: {},
+            id: id,
+            name: groupName
+        };
+        //更新数据
+        this._updateHostsData(callback, {
+            name: groupName,
+            id: id
+        });
     },
     /**
      * 移除组
@@ -241,8 +230,10 @@ module.exports = {
         var hostsStr = str.join('\n');
         fs.writeFile(self._hostsFilePath, hostsStr, function (err, data) {
             if (err && err.errno == -13) {
+                self._hostsData = objectClone(self._hostsDataFinal);
                 typeof callback == 'function' && callback(-2, '没有权限操作');
             } else {
+                self._hostsDataFinal = objectClone(self._hostsData);
                 typeof callback == 'function' && callback(100, printData);
             }
         });
@@ -330,6 +321,7 @@ module.exports = {
                 }
             }
         }
+        this._hostsDataFinal = objectClone(this._hostsData);
     },
     /**
      * 解析每一行
@@ -368,5 +360,7 @@ module.exports = {
     // Hosts 本软件管理的标示
     _hostsManageKey: '### hostsManage',
     // Hosts数据
-    _hostsData: {}
+    _hostsData: {},
+    // Hosts数据最终数据
+    _hostsDataFinal: {}
 };

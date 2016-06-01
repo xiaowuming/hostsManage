@@ -7,7 +7,7 @@ module.exports = {
     create: function (groupName, callback) {
         var self = this;
         self.editForm('添加组', '', function (groupName) {
-            self.postData(groupName, function (status, data) {
+            self.postAddData(groupName, function (status, data) {
                 if (status && callback) {
                     callback(data);
                 }
@@ -21,7 +21,6 @@ module.exports = {
      * @param callback
      */
     editForm: function (title, groupName, callback) {
-        var self = this;
         var form = $('<form>\
                 <div class="form-group">\
                 <label for="J_newGroupName">组名</label>\
@@ -39,11 +38,11 @@ module.exports = {
         });
     },
     /**
-     * 发送数据
+     * 发送新增数据
      * @param groupName
      * @param callback
      */
-    postData: function (groupName, callback) {
+    postAddData: function (groupName, callback) {
         ajax({
             url: '/addGroup',
             type: 'post',
@@ -53,10 +52,45 @@ module.exports = {
             success: function (result) {
                 if (result.code == 100) {
                     callback && callback(true, result.data);
-                } else if (result.code == -10) {
-                    dialog.alert('<p class="lh24"><i class="glyphicon glyphicon-info-sign fail"></i>组名重复.</p>');
-                } else {
-                    callback && callback(false);
+                }
+            }
+        });
+    },
+    /**
+     * 提交编辑数据
+     * @param id
+     * @param name
+     * @param callback
+     */
+    postEditData: function (id, name, callback) {
+        ajax({
+            url: '/editGroup',
+            data: {
+                id: id,
+                name: name
+            },
+            type: 'post',
+            success: function (result) {
+                if (result.code == 100) {
+                    callback && callback(true);
+                }
+            }
+        });
+    },
+    /**
+     * 删除组
+     * @param id
+     * @param callback
+     */
+    removeGroup: function (id, callback) {
+        ajax({
+            url: '/removeGroup',
+            data: {
+                id: id
+            },
+            success: function (result) {
+                if (result.code == 100) {
+                    callback && callback(true);
                 }
             }
         });

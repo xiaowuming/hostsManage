@@ -38,5 +38,30 @@ module.exports = {
         Hosts.addGroup(groupName, function (status, group) {
             Print.result(req, res, status, group);
         });
+    },
+    /**
+     * 编辑组
+     * @param req
+     * @param res
+     * @constructor
+     */
+    EditGroup: function (req, res) {
+        var groupName = req.body.name,
+            id = req.body.id;
+        Hosts.renameGroupByGroupID(id, groupName, function (status) {
+            Print.result(req, res, status);
+        });
+    },
+    /**
+     * 删除组
+     * @param req
+     * @param res
+     * @constructor
+     */
+    RemoveGroup: function (req, res) {
+        var id = req.query.id;
+        Hosts.removeGroup(id, function (status) {
+            Print.result(req, res, status);
+        });
     }
 }
