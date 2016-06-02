@@ -11,7 +11,7 @@ module.exports = {
 
         tpl.on('submit', function () {
             var str = $('#J_addMultipleHosts').val().trim();
-            
+
             self.dialog.closeDialog();
             return false;
         });
