@@ -63,5 +63,57 @@ module.exports = {
         Hosts.removeGroup(id, function (status) {
             Print.result(req, res, status);
         });
+    },
+    /**
+     * 批量添加Hosts
+     * @param req
+     * @param res
+     * @constructor
+     */
+    AddMultipleHosts: function (req, res) {
+        var groupId = req.body.groupId,
+            hosts = JSON.parse(req.body.hosts);
+
+        Hosts.addHosts(hosts, groupId, function (status, hosts) {
+            Print.result(req, res, status, hosts);
+        });
+    },
+    /**
+     * 删除Hosts
+     * @param req
+     * @param res
+     * @constructor
+     */
+    RemoveHosts: function (req, res) {
+        var ids = JSON.parse(req.body.ids);
+        Hosts.removeHostsByHostsIDs(ids, function (status) {
+            Print.result(req, res, status);
+        });
+    },
+    /**
+     * 修改Hosts状态
+     * @param req
+     * @param res
+     * @constructor
+     */
+    ChangeHostsStatus: function (req, res) {
+        var ids = JSON.parse(req.body.ids),
+            status = req.body.status == 'true' ? true : false;
+        Hosts.changeHostsStatus(status, ids, function (status) {
+            Print.result(req, res, status);
+        });
+    },
+    /**
+     * 修改组
+     * @param req
+     * @param res
+     * @constructor
+     */
+    ChangeGroupIdByIds: function (req, res) {
+        var ids = JSON.parse(req.body.ids),
+            groupId = req.body.groupId;
+        Hosts.changeGroupByHostsID(ids, groupId, function (status, hostsList) {
+            Print.result(req, res, status, hostsList);
+        })
     }
-}
+};

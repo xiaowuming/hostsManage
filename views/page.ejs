@@ -60,9 +60,9 @@
                     var item = group['hosts'][x];
                 %>
                 <% if(item.isInvalid){ %>
-                <li class="J_item item invalid">
+                <li class="J_item item invalid" id="J_item_<%= item.id %>">
                     <% }else{ %>
-                <li class="J_item item">
+                <li class="J_item item" id="J_item_<%= item.id %>">
                     <% } %>
                     <div class="select"><input name="item" type="checkbox" data-id="<%= item.id %>"
                                                data-ip="<%= item.ip %>"

@@ -1,5 +1,5 @@
 var dialog = require('./dialog.js'),
-    ajax = require('./ajax');
+    ajax = require('./ajax.js');
 module.exports = {
     /**
      * 创建组

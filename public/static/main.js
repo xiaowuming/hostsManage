@@ -1,5 +1,6 @@
 var dialog = require('./lib/dialog.js'),
-    group = require('./lib/group'),
+    group = require('./lib/group.js'),
+    hosts = require('./lib/hosts.js'),
     dns = require('./lib/dns.js');
 $(function () {
     /**
@@ -43,9 +44,195 @@ $(function () {
                     //添加Hosts
                     self.addMultipleHosts($(this).parents('.J_pane').attr('data-id'));
                 })
+                .on('change', '.J_all_select', function () {
+                    //全选
+                    $(this).parents('.J_pane').find('input[name=item]').prop('checked', $(this).prop('checked'));
+                })
+                .on('change', 'input[name=item]', function () {
+                    //单选
+                    var _this = $(this);
+                    if (_this.prop('checked')) {
+                        var maxSize = _this.parents('.J_pane').find('input[name=item]').size(),
+                            selectSize = _this.parents('.J_pane').find('input[name=item]:checked').size();
+                        if (maxSize == selectSize) {
+                            _this.parents('.J_pane').find('.J_all_select').prop('checked', true);
+                        }
+                    } else {
+                        _this.parents('.J_pane').find('.J_all_select').prop('checked', false);
+                    }
+                })
+                .on('click', '.J_delete_item', function () {
+                    //删除单个
+                    $('input[type=checkbox]').prop('checked', false);
+                    self.deleteHosts([$(this).parents('li').find('input[name=item]').attr('data-id')]);
+                })
+                .on('click', '.invalidAction', function () {
+                    //禁用单个
+                    var _this = $(this),
+                        id = _this.parents('li').find('input[name=item]').attr('data-id');
+                    if (_this.parents('.item').hasClass('invalid')) {
+                        self.changeHostsStatus([id], false);
+                    } else {
+                        self.changeHostsStatus([id], true);
+                    }
+                });
+
+            //批量启动hosts状态
+            $('#J_start_all_btn').on('click', function () {
+                self.changeMultipleHostsStatus(false);
+            });
+
+            //批量暂停Hosts状态
+            $('#J_pause_all_btn').on('click', function () {
+                self.changeMultipleHostsStatus(true);
+            });
+
+            //批量删除
+            $('#J_delete_all_btn').on('click', function () {
+                dialog.confirm('确定删除?', function () {
+                    self.deleteMultipleHosts();
+                });
+            });
+
+            //移动到...
+            $('#J_start_move_btn').on('click', function () {
+                self.hostsMoveGroup($('#J_tab_content .active').attr('data-id'));
+            });
 
         },
+        /**
+         * Hosts移动到组
+         */
+        hostsMoveGroup: function (groupId) {
+            var ids = [];
+            $('input[name=item]:checked').each(function () {
+                var id = $(this).attr('data-id');
+                ids.push(id);
+            });
+            if (ids.length == 0) {
+                return false;
+            }
+            var tpl = ['<div class="move_group">'];
+            $('.J_pane').each(function () {
+                var _this = $(this);
+                if (groupId != _this.attr('data-id')) {
+                    tpl.push('<label><input type="radio" name="group" value="' + _this.attr('data-id') + '"/>' + _this.attr('data-label') + '</label>');
+                }
 
+            });
+
+            tpl.push('<hr/>');
+            tpl.push('<label><input type="radio" name="group" value="0"/>新建组...</label>');
+            tpl.push('</div>');
+
+            tpl.push('<div style="padding-top:10px;" class="ar"><button type="button" class="btn btn-info" id="J_move_group_confirm_btn">确定</button>\
+            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button></div>');
+
+            dialog.init('移动到...', tpl.join(''), 'lg');
+
+            $('#J_move_group_confirm_btn').on('click', function () {
+                var groupId = $('input[name=group]:checked').val();
+                if (groupId == '0') {
+                    setTimeout(function () {
+                        group.create('', function (group) {
+                            hosts.changeGroupIdByIds(ids, group.id, function (hosts) {
+                                move(ids, hosts, groupId);
+                            });
+                        });
+                    }, 500);
+                } else {
+                    hosts.changeGroupIdByIds(ids, groupId, function (hosts) {
+                        move(ids, hosts, groupId);
+                    });
+                }
+
+                dialog.closeDialog();
+            });
+
+            function move(ids, hosts, groupId) {
+                for (var i in ids) {
+                    var id = ids[i];
+                    $('#J_item_' + id).remove();
+                }
+
+                var tpl = [];
+                for (var i in hosts) {
+                    var item = hosts[i];
+                    tpl.push('<li class="J_item item"  id="J_item_' + item.id + '">\
+                        <div class="select"><input name="item" type="checkbox" data-id="' + item.id + '" data-ip="' + item.ip + '" data-domain="' + item.domain + '" data-isinvalid="false">\
+                        </div>\
+                        <div class="invalidAction">#</div>\
+                        <div class="ip">' + item.ip + '</div>\
+                        <div class="domain">' + item.domain + '</div>\
+                            <div class="delete J_delete_item">x</div>\
+                            </li>');
+                }
+                $('#J_nav_tabs .active').removeClass('active');
+                $('#J_tab_content .active').removeClass('active');
+
+                $('#J_content' + groupId).find('.hosts_items li').eq(0).after(tpl.join(''));
+
+                $('#J_content' + groupId).addClass('active');
+                $('#J_tab_' + groupId).parent().addClass('active');
+            }
+
+        },
+        /**
+         * 删除多个Hosts
+         */
+        deleteMultipleHosts: function () {
+            var ids = [];
+            $('input[name=item]:checked').each(function () {
+                var id = $(this).attr('data-id');
+                ids.push(id);
+            });
+            if (ids.length > 0) {
+                this.deleteHosts(ids);
+            }
+        },
+        /**
+         * 修改多个Hosts状态
+         * @param target
+         */
+        changeMultipleHostsStatus: function (isInvalid) {
+            var ids = [];
+            $('input[name=item]:checked').each(function () {
+                var id = $(this).attr('data-id');
+                ids.push(id);
+            });
+            if (ids.length > 0) {
+                this.changeHostsStatus(ids, isInvalid);
+            }
+        },
+        /**
+         * 启动/状态Hosts
+         * @param ids
+         */
+        changeHostsStatus: function (ids, isInvalid) {
+            hosts.changeHostsStatus(ids, status, function () {
+                for (var i in ids) {
+                    var id = ids[i];
+                    if (isInvalid) {
+                        $('#J_item_' + id).addClass('invalid');
+                    } else {
+                        $('#J_item_' + id).removeClass('invalid');
+                    }
+                }
+                $('input[type=checkbox]').removeAttr('checked');
+            });
+        },
+        /**
+         * 删除Hosts
+         * @param id
+         */
+        deleteHosts: function (ids) {
+            hosts.deleteHostsByIds(ids, function () {
+                for (var i in ids) {
+                    var id = ids[i];
+                    $('#J_item_' + id).remove();
+                }
+            });
+        },
         /**
          * 绑定Tab
          */
@@ -60,7 +247,21 @@ $(function () {
          * 添加多Hosts
          */
         addMultipleHosts: function (groupId) {
-
+            hosts.addMultipleHosts(groupId, function (data) {
+                var tpl = [];
+                for (var i in data) {
+                    var item = data[i];
+                    tpl.push('<li class="J_item item"  id="J_item_' + item.id + '">\
+                        <div class="select"><input name="item" type="checkbox" data-id="' + item.id + '" data-ip="' + item.ip + '" data-domain="' + item.domain + '" data-isinvalid="false">\
+                        </div>\
+                        <div class="invalidAction">#</div>\
+                        <div class="ip">' + item.ip + '</div>\
+                        <div class="domain">' + item.domain + '</div>\
+                            <div class="delete J_delete_item">x</div>\
+                            </li>');
+                }
+                $('#J_content' + groupId).find('.hosts_items li').eq(0).after(tpl.join(''));
+            });
         },
         /**
          * 删除组

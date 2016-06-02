@@ -198,6 +198,33 @@ module.exports = {
         }
     },
     /**
+     * 批量修改Hosts状态
+     * @param invalidStatus
+     * @param ids
+     * @param callback
+     */
+    changeHostsStatus: function (invalidStatus, ids, callback) {
+        var idMap = {},
+            flag = false;
+        for (var i in ids) {
+            idMap[ids[i]] = true;
+        }
+        for (var i in this._hostsData) {
+            for (var n in this._hostsData[i]['hosts']) {
+                var hosts = this._hostsData[i]['hosts'][n];
+                if (idMap[hosts.id] == true) {
+                    flag = true;
+                    hosts.isInvalid = invalidStatus;
+                }
+            }
+        }
+        if (flag) {
+            this._updateHostsData(callback);
+        } else {
+            this.tryCallback(callback, -1);
+        }
+    },
+    /**
      * 获取索引
      */
     getIndex: function () {
