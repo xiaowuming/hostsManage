@@ -38,9 +38,14 @@ $(function () {
                 //删除组
                 .on('click', '.J_delete_group', function () {
                     self.removeGroup($(this).parents('.J_pane').attr('data-id'))
-                });
+                })
+                .on('click', '.J_add_hosts', function () {
+                    //添加Hosts
+                    self.addMultipleHosts($(this).parents('.J_pane').attr('data-id'));
+                })
 
         },
+
         /**
          * 绑定Tab
          */
@@ -50,6 +55,12 @@ $(function () {
                     .prop('checked', false)
                     .removeAttr('data-select');
             })
+        },
+        /**
+         * 添加多Hosts
+         */
+        addMultipleHosts: function (groupId) {
+
         },
         /**
          * 删除组
