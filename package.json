@@ -9,7 +9,7 @@
   "bin": {
     "hosts-manage": "cmd.js"
   },
-  "author": "肖武明",
+  "author": "xiaowuming",
   "repository": {
     "type": "git",
     "url": "git@github.com:xiaowuming/hostsManage.git"
