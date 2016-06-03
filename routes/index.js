@@ -24,6 +24,8 @@ router.post('/removeHosts', PageAction.RemoveHosts.bind(PageAction));
 router.post('/changeHostsStatus', PageAction.ChangeHostsStatus.bind(PageAction));
 //修改组
 router.post('/changeGroupIdByIds', PageAction.ChangeGroupIdByIds.bind(PageAction));
+//修改Hosts
+router.post('/editHosts',PageAction.EditHosts.bind(PageAction));
 //启动DNS
 router.get('/startDns', PageAction.StartDnsServer.bind(PageAction));
 

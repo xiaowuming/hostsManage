@@ -75,7 +75,16 @@ $(function () {
                     } else {
                         self.changeHostsStatus([id], true);
                     }
-                });
+                })
+                .on('click', '.ip,.domain', function () {
+                    //修改Hosts
+                    var target = $(this).parents('.J_item').find('input[name=item]');
+                    var ip = target.attr('data-ip'),
+                        domain = target.attr('data-domain'),
+                        id = target.attr('data-id');
+
+                    self.editHosts(ip, domain, id, target);
+                })
 
             //批量启动hosts状态
             $('#J_start_all_btn').on('click', function () {
@@ -99,11 +108,28 @@ $(function () {
                 self.hostsMoveGroup($('#J_tab_content .active').attr('data-id'));
             });
 
+
+        },
+        /**
+         * 修改Hosts
+         * @param ip
+         * @param domain
+         * @param id
+         */
+        editHosts: function (ip, domain, id, target) {
+            hosts.editHostsForm('修改Hosts', ip, domain, function (ip, domain) {
+                hosts.postEditHostsById(ip, domain, id, function () {
+                    target.attr('data-ip', ip);
+                    target.attr('data-domain', domain);
+                    $('#J_item_' + id).find('.ip').text(ip).parent().find('.domain').text(domain);
+                });
+            });
         },
         /**
          * Hosts移动到组
          */
         hostsMoveGroup: function (groupId) {
+            var self = this;
             var ids = [];
             $('input[name=item]:checked').each(function () {
                 var id = $(this).attr('data-id');
@@ -121,8 +147,13 @@ $(function () {
 
             });
 
-            tpl.push('<hr/>');
-            tpl.push('<label><input type="radio" name="group" value="0"/>新建组...</label>');
+            if (tpl.length > 1) {
+                tpl.push('<hr/>');
+                tpl.push('<label><input type="radio" name="group" value="0"/>新建组...</label>');
+            } else {
+                tpl.push('<label><input type="radio" checked name="group" value="0"/>新建组...</label>');
+            }
+
             tpl.push('</div>');
 
             tpl.push('<div style="padding-top:10px;" class="ar"><button type="button" class="btn btn-info" id="J_move_group_confirm_btn">确定</button>\
@@ -135,8 +166,9 @@ $(function () {
                 if (groupId == '0') {
                     setTimeout(function () {
                         group.create('', function (group) {
+                            self.insertNewGroup(group);
                             hosts.changeGroupIdByIds(ids, group.id, function (hosts) {
-                                move(ids, hosts, groupId);
+                                move(ids, hosts, group.id);
                             });
                         });
                     }, 500);
@@ -150,7 +182,7 @@ $(function () {
             });
 
             function move(ids, hosts, groupId) {
-                for (var i in ids) {
+                for (var i = 0; i < ids.length; i++) {
                     var id = ids[i];
                     $('#J_item_' + id).remove();
                 }

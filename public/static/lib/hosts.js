@@ -26,6 +26,56 @@ module.exports = {
 
     },
     /**
+     * 编辑Hosts表单
+     */
+    editHostsForm: function (title, ip, domain, callback) {
+        var form = $('<form>\
+                <div class="form-group">\
+                <label for="J_newGroupName">IP:</label>\
+            <input type="text" required class="form-control" name="ip" value="' + ip + '" id="J_new_ip" placeholder="IP">\
+                </div>\
+                 <div class="form-group">\
+                <label for="J_newGroupName">Domamin:</label>\
+            <input type="text" required class="form-control" name="domain" value="' + domain + '" id="J_new_domain" placeholder="Domain">\
+                </div>\
+            <button type="submit" class="btn btn-info">确定</button>\
+            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>\
+                </form>');
+
+        dialog.init(title, form);
+
+        form.on('submit', function () {
+            var ip = $('#J_new_ip').val().trim(),
+                domain = $('#J_new_domain').val().trim();
+            setTimeout(function () {
+                callback(ip, domain);
+            }, 500);
+            dialog.closeDialog();
+            return false;
+        });
+    },
+    /**
+     * 通过ID修改Hosts
+     * @param ip
+     * @param domain
+     * @param id
+     * @param callback
+     */
+    postEditHostsById: function (ip, domain, id, callback) {
+        ajax({
+            url: '/editHosts',
+            type: 'post',
+            data: {
+                ip: ip,
+                domain: domain,
+                id: id
+            },
+            success: function () {
+                callback(ip, domain, id);
+            }
+        });
+    },
+    /**
      * 解析到对象
      * @param str
      */
@@ -105,7 +155,7 @@ module.exports = {
      */
     changeGroupIdByIds: function (ids, groupId, callback) {
         ajax({
-            url: '/changeHostsStatus',
+            url: '/changeGroupIdByIds',
             type: 'post',
             data: {
                 ids: JSON.stringify(ids),

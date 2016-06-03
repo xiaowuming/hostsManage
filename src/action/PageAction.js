@@ -115,5 +115,19 @@ module.exports = {
         Hosts.changeGroupByHostsID(ids, groupId, function (status, hostsList) {
             Print.result(req, res, status, hostsList);
         })
+    },
+    /**
+     * 修改Hosts
+     * @param req
+     * @param res
+     * @constructor
+     */
+    EditHosts: function (req, res) {
+        var id = req.body.id,
+            ip = req.body.ip,
+            domain = req.body.domain;
+        Hosts.updateHosts(id, ip, domain, function (status) {
+            Print.result(req, res, status);
+        });
     }
 };
