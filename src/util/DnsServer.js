@@ -15,7 +15,7 @@ module.exports = function (callback) {
     };
 
     var onListening = function () {
-        console.log('DNS服务启动成功.');
+        console.log(new Date().toLocaleString(), 'DNS服务启动成功.');
         global.dnsIsStart = true;
         if (callback) {
             callback(true);
@@ -26,12 +26,13 @@ module.exports = function (callback) {
     };
 
     var onSocketError = function (err, socket) {
-        console.log('DNS服务启动失败.');
-        if (callback) {
-            callback(false);
-            callback = null;
+        if (err) {
+            console.log(new Date().toLocaleString(), 'DNS服务启动失败.');
+            if (callback) {
+                callback(false);
+                callback = null;
+            }
         }
-        console.log(err);
     };
 
     var onClose = function () {
